@@ -41,6 +41,11 @@ class ModelGenerator
 
     protected $baseModel = 'Eloquent';
 
+	/**
+	 * @var ValidationRuleGenerator
+	 */
+	protected $validationGenerator;
+
     /**
      * @param string $baseModel (the model that all your others will extend)
      * @param string $path (the path where we will store your new models)
@@ -60,6 +65,8 @@ class ModelGenerator
             define('CR', "\r");
         }
 
+
+		$this->validationGenerator = new ValidationRuleGenerator();
         $this->baseModel = $baseModel;
         $this->path = $path;
         $this->namespace = $namespace;
@@ -98,6 +105,7 @@ class ModelGenerator
                 $this->baseModel,
                 $this->describes,
                 $this->foreignKeys,
+				$this->validationGenerator,
                 $this->namespace,
                 $this->prefix
             );

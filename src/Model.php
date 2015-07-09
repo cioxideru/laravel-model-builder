@@ -25,7 +25,8 @@ class Model
     private $timestamps = false;
     private $dates = array();
     private $hidden = array();
-    private $fillable = array();
+	private $fillable = array();
+	private $rules = array();
     private $namespace = '';
 
     /**
@@ -34,7 +35,11 @@ class Model
     private $relations;
 
     // the result
-    private $fileContents = '';
+	private $fileContents = '';
+	/**
+	 * @var ValidationRuleGenerator
+	 */
+	private $validationGenerator;
 
     /**
      * First build the model
@@ -45,8 +50,10 @@ class Model
      * @param string $namespace
      * @param string $prefix
      */
-    public function buildModel($table, $baseModel, $describes, $foreignKeys, $namespace = '', $prefix = '')
+    public function buildModel($table, $baseModel, $describes, $foreignKeys, $validationGenerator, $namespace = '',
+		$prefix = '')
     {
+		$this->validationGenerator = $validationGenerator;
         $this->table = StringUtils::removePrefix($table, $prefix);
         $this->baseModel = $baseModel;
         $this->foreignKeys = $this->filterAndSeparateForeignKeys($foreignKeys['all'], $table);
@@ -61,6 +68,7 @@ class Model
 
         $describe = $describes[$table];
 
+		$this->rules = $this->validationGenerator->getRules($table);
 
         // main loop
         foreach ($describe as $field) {
@@ -146,6 +154,8 @@ class Model
             $file .= TAB.'}'.LF.LF;
         }
 
+		$wrap = TAB.'protected $rules = array('.StringUtils::implodeAndQuote(', ', $this->rules).');'.LF.LF;
+
         // most fields are considered as fillable
         $wrap = TAB.'protected $fillable = array('.StringUtils::implodeAndQuote(', ', $this->fillable).');'.LF.LF;
         $file .= wordwrap($wrap, ModelGenerator::$lineWrap, LF.TAB.TAB);
@@ -199,6 +209,11 @@ class Model
         }
         return $timestampFields;
     }
+
+
+	protected function getValidatinRules($table){
+		$this->validationGenerator->getRules($table);
+	}
 
     /**
      * Check if the field is primary key
