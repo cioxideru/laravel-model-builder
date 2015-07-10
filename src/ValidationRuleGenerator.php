@@ -10,6 +10,7 @@ class ValidationRuleGenerator
 	{
 		$this->schemaManager = $schemaManager ? :
 			DB::connection()->getDoctrineSchemaManager();
+		DB::connection()->getDoctrineConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('enum','string');
 	}
 
 	/**
@@ -303,9 +304,10 @@ class ValidationRuleGenerator
 		$indexArray = array();
 		$indexList = $this->schemaManager->listTableIndexes($table);
 		foreach($indexList as $item) {
+			if($item->isPrimary())
+				continue;
 			$cols = $item->getColumns();
 			if(in_array($column, $cols) !== false && count($cols)==1 && $item->isUnique()) {
-
 				$indexArray['unique'] = $table . ',' . $column;
 			}
 		}

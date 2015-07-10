@@ -37,6 +37,7 @@ class Relations
         $this->foreignKeysByTable = $foreignKeysByTable;
         $this->prefix = $prefix;
 
+
         $remoteField = '';
         $remoteTable = '';
         $localField = '';
@@ -52,6 +53,7 @@ class Relations
 
         // do remote keys
         foreach ($foreignKeys['remote'] as $foreignKey) {
+
             $type = $this->findType($foreignKey, true);
             if ($type == 'belongsToMany') {
                 $this->manyToMany[] = $foreignKey;
@@ -65,25 +67,25 @@ class Relations
 
         // many to many last
         foreach ($this->manyToMany as $foreignKey) {
+
             $fields = $this->describes[$foreignKey->TABLE_NAME];
             $relations = $this->foreignKeysByTable[$foreignKey->TABLE_NAME];
-            foreach ($fields as $field) {
-                if ($field->Key == 'PRI') {
-                    if ($field->Field == $foreignKey->COLUMN_NAME) {
-                        $localField = $field->Field;
-                    } else {
-                        $remoteField = $field->Field;
-                        foreach ($relations as $relation) {
-                            if ($relation->REFERENCED_TABLE_NAME !== $this->localTable) {
-                                $remoteTable = $relation->REFERENCED_TABLE_NAME;
-                            }
-                        }
-                    }
-                }
-            }
+			$localField = $foreignKey->COLUMN_NAME;
+
+			foreach ($relations as $relation) {
+				if ($relation->REFERENCED_TABLE_NAME !== $this->localTable) {
+					$remoteTable = $relation->REFERENCED_TABLE_NAME;
+					$remoteField = $relation->COLUMN_NAME;
+				}
+			}
             $type = $this->findType($foreignKey, true);
             $junctionTable = $foreignKey->TABLE_NAME;
-            $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField, $prefix, $junctionTable);
+
+			$rel = $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField, $prefix,
+				$junctionTable);
+			$print = $rel->__toString();
+			/*if($this->localTable == 'users' && $junctionTable == 'user_notes')
+			dd(compact('fields','relations','localField','remoteField','localTable','foreignKey','type','junctionTable','print'));*/
         }
 
     }
@@ -135,16 +137,12 @@ class Relations
      */
     protected function isBelongsToMany($foreignKey)
     {
-        $remote = $this->describes[$foreignKey->TABLE_NAME];
+        $remote = $this->foreignKeysByTable[$foreignKey->TABLE_NAME];
         $count = 0;
-        foreach ($remote as $field) {
-            if ($field->Key == 'PRI') {
-                $count++;
-            }
-        }
-        if ($count == 2) {
-            return true;
-        }
+		if(count($remote) == 2)
+		{
+			return true;
+		}
         return false;
     }
 

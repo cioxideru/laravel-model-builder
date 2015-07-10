@@ -1,5 +1,6 @@
 <?php namespace Jimbolino\Laravel\ModelBuilder;
 
+
 use Exception;
 
 /**
@@ -56,14 +57,12 @@ class ModelGenerator
     {
 
         if (!defined('TAB')) {
-            define('TAB', '    '); // Code MUST use 4 spaces for indenting, not tabs.
+            define('TAB', "\t"); // Code MUST use 4 spaces for indenting, not tabs.
         }
-        if (!defined('LF')) {
-            define('LF', "\n");
+        if (!defined('CRLF')) {
+            define('CRLF', "\r\n");
         }
-        if (!defined('CR')) {
-            define('CR', "\r");
-        }
+
 
 
 		$this->validationGenerator = new ValidationRuleGenerator();
@@ -87,9 +86,8 @@ class ModelGenerator
         $this->foreignKeys['all'] = Database::getAllForeignKeys();
         $this->foreignKeys['ordered'] = $this->getAllForeignKeysOrderedByTable();
 
-        foreach ($this->tables as $key => $table) {
+		foreach ($this->tables as $key => $table) {
             $this->describes[$table] = Database::describeTable($table);
-
             if ($this->isManyToMany($table, true)) {
                 $this->junctionTables[] = $table;
                 unset($this->tables[$key]);
@@ -114,7 +112,7 @@ class ModelGenerator
 
             $result = $this->writeFile($table, $model);
 
-            echo 'file written: '.$result['filename'].' - '.$result['result'].' bytes'.LF;
+            echo 'file written: '.$result['filename'].' - '.$result['result'].' bytes'.CRLF;
         }
         echo 'done';
     }
@@ -163,7 +161,7 @@ class ModelGenerator
 
         if (!is_dir($this->path)) {
             $oldUMask = umask(0);
-            echo 'creating path: '.$this->path.LF;
+            echo 'creating path: '.$this->path.CRLF;
             mkdir($this->path, 0777, true);
             umask($oldUMask);
             if (!is_dir($this->path)) {

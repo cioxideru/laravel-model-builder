@@ -33,6 +33,7 @@ class Relation
         $this->junctionTable = StringUtils::removePrefix($junctionTable, $prefix);
 
         if ($this->type == 'belongsToMany') {
+
             $this->remoteFunction = StringUtils::safePlural($this->remoteFunction);
         }
     }
@@ -42,8 +43,8 @@ class Relation
      */
     public function __toString()
     {
-        $string = TAB.'public function '.$this->remoteFunction.'()'.LF;
-        $string .= TAB.'{'.LF;
+        $string = TAB.'public function '.$this->remoteFunction.'()'.CRLF;
+        $string .= TAB.'{'.CRLF;
         $string .= TAB.TAB.'return $this->'.$this->type.'(';
         $string .= StringUtils::singleQuote($this->remoteClass);
 
@@ -59,8 +60,8 @@ class Relation
             $string .= ', '.StringUtils::singleQuote($this->remoteField);
         //}
 
-        $string .= ');'.LF;
-        $string .= TAB.'}'.LF.LF;
+        $string .= ');'.CRLF;
+        $string .= TAB.'}'.CRLF.CRLF;
         return $string;
     }
 }

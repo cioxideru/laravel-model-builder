@@ -1,4 +1,5 @@
 <?php namespace Jimbolino\Laravel\ModelBuilder;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * Class StringUtils, some handy string functions
@@ -45,8 +46,8 @@ abstract class StringUtils
     public static function underscoresToCamelCase($string, $capitalizeFirstChar = false)
     {
         $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
-        if (!$capitalizeFirstChar) {
-            $str[0] = strtolower($str[0]);
+        if (!empty($str) && !$capitalizeFirstChar) {
+			$str[0] = strtolower($str[0]);
         }
         return $str;
     }
@@ -108,8 +109,16 @@ abstract class StringUtils
         $plural = str_plural($value);
         if ($plural == $value) {
             $plural = $value.'s';
-            echo 'warning: automatic pluralization of '.$value.' failed, using '.$plural.LF;
+            echo 'warning: automatic pluralization of '.$value.' failed, using '.$plural.CRLF;
         }
         return $plural;
     }
+
+	public static function offsetTabs ($strlen, $max_tabs = 10) {
+		$tabs = TAB;
+		for($i = $max_tabs;$i >= floor($strlen/4);$i--){
+			$tabs .=TAB;
+		}
+		return $tabs;
+	}
 }
