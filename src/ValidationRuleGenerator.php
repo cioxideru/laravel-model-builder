@@ -6,7 +6,7 @@ class ValidationRuleGenerator
 {
 	protected $schemaManager;
 
-	public function __construct($schemaManager = Null)
+	public function __construct($schemaManager = null)
 	{
 		$this->schemaManager = $schemaManager ? :
 			DB::connection()->getDoctrineSchemaManager();
@@ -23,15 +23,15 @@ class ValidationRuleGenerator
 	 *
 	 * @return array                 Array of calculated rules for the given table/model
 	 */
-	public function getRules($table=Null, $column=Null, $rules=Null, $id=Null)
+	public function getRules($table=null, $column=null, $rules=null, $id=null)
 	{
-		if ( ! $table == Null && $column == Null) {
+		if ( ! $table == null && $column == null) {
 			$return = $this->getTableRules($table, $rules);
-			return ($id == Null) ? $return : $this->getUniqueRules($return, $id);
-		} elseif ( ! $table == Null && ! $column == Null ) {
+			return ($id == null) ? $return : $this->getUniqueRules($return, $id);
+		} elseif ( ! $table == null && ! $column == null ) {
 			$return = $this->getColumnRules($table, $column, $rules);
-			return ($id == Null) ? $return : $this->getUniqueRules($return, $id);
-		} elseif ($table == Null && $column == Null && $rules == Null && $id == Null) {
+			return ($id == null) ? $return : $this->getUniqueRules($return, $id);
+		} elseif ($table == null && $column == null && $rules == null && $id == null) {
 			return $this->getAllTableRules();
 		}
 
@@ -70,7 +70,7 @@ class ValidationRuleGenerator
 	 *                          These will override the automatically generated rules
 	 * @return array  An associative array of columns and delimited string of rules
 	 */
-	public function getTableRules($table, $rules = Null)
+	public function getTableRules($table, $rules = null)
 	{
 		$table = $this->getTableName($table);
 
@@ -92,7 +92,7 @@ class ValidationRuleGenerator
 	 * @param  string|array $rules    Additional information or overrides.
 	 * @return string           The final calculated rules for this column
 	 */
-	public function getColumnRules($table, $column, $rules = Null)
+	public function getColumnRules($table, $column, $rules = null)
 	{
 		// TODO: Work with foreign keys for exists:table,column statements
 
@@ -211,7 +211,7 @@ class ValidationRuleGenerator
 	{
 		$rules = '';
 		foreach($ruleArray as $key => $value) {
-			if($value!==Null) {
+			if($value!==null) {
 				$rules .= $key .':'. $value . '|';
 			} else {
 				$rules .= $key .'|';
@@ -229,7 +229,7 @@ class ValidationRuleGenerator
 	 */
 	protected function parseRule($rule)
 	{
-		$attribute = Null;
+		$attribute = null;
 		if (strpos($rule, ':') !== false)
 		{
 			list($rule, $attribute) = explode(':', $rule, 2);
@@ -268,7 +268,7 @@ class ValidationRuleGenerator
 	/**
 	 * Returns an array of rules for a given database column, based on field information
 	 *
-	 * @param  Doctrine\DBAL\Schema\Column $col     A database column object (from Doctrine)
+	 * @param  \Doctrine\DBAL\Schema\Column $col     A database column object (from Doctrine)
 	 * @return array                                An array of rules for this column
 	 */
 	protected function getColumnRuleArray($col)
@@ -280,13 +280,13 @@ class ValidationRuleGenerator
 				$colArray['max'] = $len;
 			}
 		} elseif ($type=='Integer') {
-			$colArray['integer']=Null;
+			$colArray['integer']=null;
 			if ($col->getUnsigned()) {
 				$colArray['min'] = '0';
 			}
 		}
-		if ($col->getNotNull()) {
-			$colArray['required']=Null;
+		if ($col->getNotnull() && !$col->getAutoincrement()) {
+			$colArray['required']=null;
 		}
 		return $colArray;
 	}
