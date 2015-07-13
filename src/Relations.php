@@ -8,19 +8,20 @@ class Relations
 {
 
     // input
-    private $localTable = '';
-    private $foreignKeys = array();
-    private $describes = array();
-    private $foreignKeysByTable = array();
-    private $prefix = '';
+	public $localTable = '';
+	public $foreignKeys = array();
+	public $describes = array();
+	public $foreignKeysByTable = array();
+	public $prefix = '';
+	public $namespace = '';
 
     // temporary
-    private $manyToMany = array();
+	public $manyToMany = array();
 
     /**
      * @var Relation[]
      */
-    private $relations = array();
+    public $relations = array();
 
     /**
      * This is where the magic happens
@@ -28,14 +29,15 @@ class Relations
      * @param $foreignKeys
      * @param $describes
      */
-    public function __construct($localTable, $foreignKeys, $describes, $foreignKeysByTable, $prefix)
+    public function __construct($localTable, $foreignKeys, $describes, $foreignKeysByTable, $prefix,$namespace)
     {
         // save
         $this->localTable = $localTable;
         $this->foreignKeys = $foreignKeys;
         $this->describes = $describes;
         $this->foreignKeysByTable = $foreignKeysByTable;
-        $this->prefix = $prefix;
+		$this->prefix = $prefix;
+		$this->namespace = $namespace;
 
 
         $remoteField = '';
@@ -48,7 +50,7 @@ class Relations
             $remoteField = $foreignKey->REFERENCED_COLUMN_NAME;
             $remoteTable = $foreignKey->REFERENCED_TABLE_NAME;
             $localField = $foreignKey->COLUMN_NAME;
-            $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField, $prefix);
+            $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField,$this->namespace, $prefix);
         }
 
         // do remote keys
@@ -62,7 +64,8 @@ class Relations
             $remoteField = $foreignKey->COLUMN_NAME;
             $remoteTable = $foreignKey->TABLE_NAME;
             $localField = $foreignKey->REFERENCED_COLUMN_NAME;
-            $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField, $prefix);
+            $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField,$this->namespace,
+				$prefix);
         }
 
         // many to many last
@@ -81,7 +84,8 @@ class Relations
             $type = $this->findType($foreignKey, true);
             $junctionTable = $foreignKey->TABLE_NAME;
 
-			$rel = $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField, $prefix,
+			$rel = $this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField,
+				$this->namespace, $prefix,
 				$junctionTable);
 			$print = $rel->__toString();
 			/*if($this->localTable == 'users' && $junctionTable == 'user_notes')

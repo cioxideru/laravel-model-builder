@@ -7,12 +7,13 @@
 class Relation
 {
 
-    protected $type;
-    protected $remoteField;
-    protected $localField;
-    protected $remoteFunction;
-    protected $remoteClass;
-    protected $junctionTable;
+    public $type;
+	public $remoteField;
+    public $localField;
+    public $remoteFunction;
+    public $remoteClass;
+	public $junctionTable;
+	public $namespace;
 
     /**
      * Create a relation object
@@ -23,9 +24,11 @@ class Relation
      * @param string $prefix
      * @param string $junctionTable
      */
-    public function __construct($type, $remoteField, $remoteTable, $localField, $prefix = '', $junctionTable = '')
+    public function __construct($type, $remoteField, $remoteTable, $localField,$namepace, $prefix = '',
+		$junctionTable = '')
     {
-        $this->type = $type;
+		$this->namepace = $namepace;
+		$this->type = $type;
         $this->remoteField = $remoteField;
         $this->localField = $localField;
         $this->remoteFunction = StringUtils::underscoresToCamelCase(StringUtils::removePrefix($remoteTable, $prefix));
@@ -46,7 +49,7 @@ class Relation
         $string = TAB.'public function '.$this->remoteFunction.'()'.CRLF;
         $string .= TAB.'{'.CRLF;
         $string .= TAB.TAB.'return $this->'.$this->type.'(';
-        $string .= StringUtils::singleQuote($this->remoteClass);
+        $string .= StringUtils::singleQuote($this->namepace.'\\'.$this->remoteClass);
 
         if ($this->type == 'belongsToMany') {
             $string .= ', '.StringUtils::singleQuote($this->junctionTable);

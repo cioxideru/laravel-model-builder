@@ -34,11 +34,13 @@ class ModelGenerator
 	 */
 	public static $lineWrap = 120;
 
-	protected $prefix = '';
+	protected $prefix;
 
 	protected $namespace = 'app';
 
-	protected $path = '';
+	protected $path;
+
+	protected $force;
 
 	protected $baseModel = 'Eloquent';
 
@@ -53,7 +55,7 @@ class ModelGenerator
 	 * @param string $namespace (the namespace of the models)
 	 * @param string $prefix (the configured table prefix)
 	 */
-	public function __construct($baseModel = '', $path = '', $namespace = '', $prefix = '')
+	public function __construct($baseModel = '', $path = '', $namespace = '', $prefix = '',$force=false)
 	{
 
 		if (!defined('TAB')) {
@@ -70,6 +72,7 @@ class ModelGenerator
 		$this->path = $path;
 		$this->namespace = $namespace;
 		$this->prefix = $prefix;
+		$this->force = $force;
 	}
 
 	/**
@@ -110,8 +113,8 @@ class ModelGenerator
 
 
 			$path = $this->path.DIRECTORY_SEPARATOR.'Base';
-			$result = $this->writeFile($table.'_base', $model->getBaseModel(),$path);
-			$parent_result = $this->writeFile($table, $model->getModel());
+			$result = $this->writeFile($table.'_base', $model->getBaseModel(),$path, true);
+			$parent_result = $this->writeFile($table, $model->getModel(),null,$this->force);
 
 			echo 'Base: file written: '.$result['filename'].' - '.$result['result'].' bytes'.CRLF;
 			echo 'Chield: file written: '.$parent_result['filename'].' - '.$parent_result['result'].' bytes'.CRLF;
@@ -157,7 +160,7 @@ class ModelGenerator
 	 * @return array
 	 * @throws Exception
 	 */
-	protected function writeFile($table, $model, $path = null)
+	protected function writeFile($table, $model, $path = null,$force=false)
 	{
 		$filename = StringUtils::prettifyTableName($table, $this->prefix).'.php';
 
@@ -171,8 +174,13 @@ class ModelGenerator
 				throw new Exception('dir '.$path.' could not be created');
 			}
 		}
-		$result = file_put_contents($path.DIRECTORY_SEPARATOR.$filename, $model);
-		return array('filename' => $path.DIRECTORY_SEPARATOR.$filename, 'result' => $result);
+		$file_exists = file_exists($path.DIRECTORY_SEPARATOR.$filename);
+		$result = null;
+		if(($file_exists && $force) || !$file_exists)
+			$result = file_put_contents($path.DIRECTORY_SEPARATOR.$filename, $model);
+
+		return array('filename' => $path.DIRECTORY_SEPARATOR.$filename, 'result' => $result, 'skip'=>($file_exists &&
+				$force) || !$file_exists);
 	}
 
 	/**

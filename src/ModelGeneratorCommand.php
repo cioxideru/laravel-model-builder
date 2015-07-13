@@ -40,10 +40,11 @@ class ModelGeneratorCommand extends Command
 		$path = app_path($this->option('app_path'));
 
 		$namespace = $this->option('namespace');
+		$force = $this->option('force');
 
 		$prefix = Database::getTablePrefix();
 
-		$this->generator = new ModelGenerator($baseModel, $path, $namespace, $prefix);
+		$this->generator = new ModelGenerator($baseModel, $path, $namespace, $prefix,$force);
 		$this->info('Model Generation Start');
 		$this->generator->start();
 		$this->info('Generation is Done');
@@ -71,6 +72,7 @@ class ModelGeneratorCommand extends Command
 			array('base_model', null, InputOption::VALUE_OPTIONAL, 'base_model = \Illuminate\Database\Eloquent\Model', '\Illuminate\Database\Eloquent\Model'),
 			array('app_path', null, InputOption::VALUE_OPTIONAL, 'app_path=models','Models'),
 			array('namespace', null, InputOption::VALUE_OPTIONAL, 'namespace=App','App\\Models'),
+			array('force', null, InputOption::VALUE_OPTIONAL, 'rewrite child models force=false',false),
 		);
 	}
 
