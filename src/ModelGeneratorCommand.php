@@ -3,11 +3,9 @@
  * @author iBaranov <cioxideru@gmail.com>
  * Date: 10.07.15
  */
-namespace Kalani\ValidationRuleGenerator;
+namespace Jimbolino\Laravel\ModelBuilder;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Redis\Database;
-use Jimbolino\Laravel\ModelBuilder\ModelGenerator;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
@@ -32,16 +30,6 @@ class ModelGeneratorCommand extends Command
 	protected $generator;
 
 	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-
-	}
-
-	/**
 	 * Execute the console command.
 	 *
 	 * @return void
@@ -49,7 +37,6 @@ class ModelGeneratorCommand extends Command
 	public function fire()
 	{
 		$baseModel = $this->option('base_model');
-
 		$path = app_path($this->option('app_path'));
 
 		$namespace = $this->option('namespace');
@@ -57,6 +44,9 @@ class ModelGeneratorCommand extends Command
 		$prefix = Database::getTablePrefix();
 
 		$this->generator = new ModelGenerator($baseModel, $path, $namespace, $prefix);
+		$this->info('Model Generation Start');
+		$this->generator->start();
+		$this->info('Generation is Done');
 	}
 
 	/**
