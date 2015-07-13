@@ -69,8 +69,8 @@ class ModelGeneratorCommand extends Command
 	{
 		return array(
 			array('base_model', null, InputOption::VALUE_OPTIONAL, 'base_model = \Illuminate\Database\Eloquent\Model', '\Illuminate\Database\Eloquent\Model'),
-			array('app_path', null, InputOption::VALUE_OPTIONAL, 'app_path=models','models'),
-			array('namespace', null, InputOption::VALUE_OPTIONAL, 'namespace=App','App'),
+			array('app_path', null, InputOption::VALUE_OPTIONAL, 'app_path=models','Models'),
+			array('namespace', null, InputOption::VALUE_OPTIONAL, 'namespace=App','App\\Models'),
 		);
 	}
 
