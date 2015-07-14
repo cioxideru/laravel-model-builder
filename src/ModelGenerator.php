@@ -62,7 +62,7 @@ class ModelGenerator
 			define('TAB', "\t"); // Code MUST use 4 spaces for indenting, not tabs.
 		}
 		if (!defined('CRLF')) {
-			define('CRLF', "\r\n");
+			define('CRLF', "\n");
 		}
 
 
