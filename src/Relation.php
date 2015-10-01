@@ -25,7 +25,7 @@ class Relation
      * @param string $junctionTable
      */
     public function __construct($type, $remoteField, $remoteTable, $localField,$namepace, $prefix = '',
-		$junctionTable = '')
+		$junctionTable = '', $m2mDuplicates = 0)
     {
 		$this->namepace = $namepace;
 		$this->type = $type;
@@ -36,8 +36,7 @@ class Relation
         $this->junctionTable = StringUtils::removePrefix($junctionTable, $prefix);
 
         if ($this->type == 'belongsToMany') {
-
-            $this->remoteFunction = StringUtils::safePlural($this->remoteFunction);
+            $this->remoteFunction = StringUtils::safePlural($this->remoteFunction).($m2mDuplicates>1?$m2mDuplicates:'');
         }
     }
 

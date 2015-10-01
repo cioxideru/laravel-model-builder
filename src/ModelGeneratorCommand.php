@@ -17,7 +17,7 @@ class ModelGeneratorCommand extends Command
 	 *
 	 * @var string
 	 */
-	protected $name = 'tizbi:generate:models';
+	protected $name = 'tizbi:generate.models';
 
 	/**
 	 * The console command description.
