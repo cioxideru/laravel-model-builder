@@ -15,9 +15,6 @@ class Relations
 	public $prefix = '';
 	public $namespace = '';
 
-	// temporary
-	public $manyToMany = array();
-
 	/**
 	 * @var Relation[]
 	 */
@@ -43,6 +40,9 @@ class Relations
 		$remoteField = '';
 		$remoteTable = '';
 		$localField = '';
+		$duplicates = $this->getDuplicates($foreignKeys);
+
+
 
 		// do local keys
 		foreach ($foreignKeys['local'] as $foreignKey) {
@@ -50,25 +50,31 @@ class Relations
 			$remoteField = $foreignKey->REFERENCED_COLUMN_NAME;
 			$remoteTable = $foreignKey->REFERENCED_TABLE_NAME;
 			$localField = $foreignKey->COLUMN_NAME;
-			$this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField,$this->namespace, $prefix);
+
+			$this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField,$this->namespace,
+				$prefix, '', $duplicates['local'][$remoteTable]);
 		}
 
 		// do remote keys
 		foreach ($foreignKeys['remote'] as $foreignKey) {
 			$type = $this->findType($foreignKey, true);
 			if ($type == 'belongsToMany') {
-				$this->manyToMany[] = $foreignKey;
 				continue;
 			}
 			$remoteField = $foreignKey->COLUMN_NAME;
 			$remoteTable = $foreignKey->TABLE_NAME;
 			$localField = $foreignKey->REFERENCED_COLUMN_NAME;
-			$this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField,$this->namespace,
-				$prefix);
+
+			$this->relations[] = new Relation($type, $remoteField, $remoteTable, $localField, $this->namespace,
+				$prefix, '', $duplicates['remote'][$remoteTable]);
 		}
-		$m2mduplicates = [];
+
 		// many to many last
-		foreach ($this->manyToMany as $foreignKey) {
+		foreach ($foreignKeys['remote'] as $foreignKey) {
+			$type = $this->findType($foreignKey, true);
+			if ($type != 'belongsToMany') {
+				continue;
+			}
 
 			$fields = $this->describes[$foreignKey->TABLE_NAME];
 			$relations = $this->foreignKeysByTable[$foreignKey->TABLE_NAME];
@@ -83,12 +89,7 @@ class Relations
 			$type = $this->findType($foreignKey, true);
 			$junctionTable = $foreignKey->TABLE_NAME;
 
-			if(!isset($m2mduplicates[$remoteTable]))
-				$m2mduplicates[$remoteTable] = 1;
-			else
-				$m2mduplicates[$remoteTable] ++;
-
-			$rel = $this->relations[] = new Relation(
+			$this->relations[] = new Relation(
 				$type,
 				$remoteField,
 				$remoteTable,
@@ -96,13 +97,56 @@ class Relations
 				$this->namespace,
 				$prefix,
 				$junctionTable,
-				$m2mduplicates[$remoteTable]
+				$duplicates['m2m'][$remoteTable]
 			);
-			$print = $rel->__toString();
-			/*if($this->localTable == 'users' && $junctionTable == 'user_notes')
-			dd(compact('fields','relations','localField','remoteField','localTable','foreignKey','type','junctionTable','print'));*/
 		}
 
+	}
+
+
+	private function getDuplicates($foreignKeys){
+		$duplicates=[
+			'remote'=>[],
+			'local'=>[],
+			'm2m'=>[],
+		];
+
+		$save_key = 'local';
+		foreach($foreignKeys['local'] as $foreignKey){
+			$remoteTable = $foreignKey->REFERENCED_TABLE_NAME;
+			if(!isset($duplicates[$save_key][$remoteTable]))
+				$duplicates[$save_key][$remoteTable] = 0;
+			else
+				$duplicates[$save_key][$remoteTable]++;
+		}
+
+		foreach($foreignKeys['remote'] as $foreignKey){
+			$type = $this->findType($foreignKey, true);
+			if ($type == 'belongsToMany') {
+				$save_key = 'm2m';
+				foreach ($this->foreignKeysByTable[$foreignKey->TABLE_NAME] as $relation) {
+					if ($relation->REFERENCED_TABLE_NAME !== $this->localTable) {
+						$remoteTable = $relation->REFERENCED_TABLE_NAME;
+					}
+				}
+			}else{
+				$remoteTable = $foreignKey->TABLE_NAME;
+				$save_key = 'remote';
+			}
+			if(!isset($duplicates[$save_key][$remoteTable]))
+				$duplicates[$save_key][$remoteTable] = 0;
+			else
+				$duplicates[$save_key][$remoteTable]++;
+		}
+
+		foreach($duplicates['m2m'] as $table=>$v){
+			if(isset($duplicates['remote'][$table])){
+				$duplicates['m2m'][$table] ++;
+			}
+		}
+
+
+		return $duplicates;
 	}
 
 	/**
