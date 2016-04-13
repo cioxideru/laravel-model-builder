@@ -143,6 +143,10 @@ class Relations
 			if(isset($duplicates['remote'][$table])){
 				$duplicates['m2m'][$table] ++;
 			}
+
+			if(isset($duplicates['local'][$table])){
+				$duplicates['m2m'][$table] ++;
+			}
 		}
 
 

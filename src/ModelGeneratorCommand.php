@@ -37,6 +37,7 @@ class ModelGeneratorCommand extends Command
 	public function fire()
 	{
 		$baseModel = $this->option('base_model');
+		$signleTable = $this->option('table');
 		$path = app_path($this->option('app_path'));
 
 		$namespace = $this->option('namespace');
@@ -44,7 +45,7 @@ class ModelGeneratorCommand extends Command
 
 		$prefix = Database::getTablePrefix();
 
-		$this->generator = new ModelGenerator($baseModel, $path, $namespace, $prefix,$force);
+		$this->generator = new ModelGenerator($baseModel, $path, $namespace, $prefix,$force,$signleTable);
 		$this->info('Model Generation Start');
 		$this->generator->start();
 		$this->info('Generation is Done');
@@ -70,6 +71,7 @@ class ModelGeneratorCommand extends Command
 	{
 		return array(
 			array('base_model', null, InputOption::VALUE_OPTIONAL, 'base_model = \Illuminate\Database\Eloquent\Model', '\Illuminate\Database\Eloquent\Model'),
+			array('table', null, InputOption::VALUE_OPTIONAL, 'table = editorial_content', 'editorial_content'),
 			array('app_path', null, InputOption::VALUE_OPTIONAL, 'app_path=models','Models'),
 			array('namespace', null, InputOption::VALUE_OPTIONAL, 'namespace=App','App\\Models'),
 			array('force', null, InputOption::VALUE_OPTIONAL, 'rewrite child models force=false',false),

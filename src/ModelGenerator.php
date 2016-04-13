@@ -44,6 +44,8 @@ class ModelGenerator
 
 	protected $baseModel = 'Eloquent';
 
+	protected $singleTable;
+
 	/**
 	 * @var ValidationRuleGenerator
 	 */
@@ -55,7 +57,7 @@ class ModelGenerator
 	 * @param string $namespace (the namespace of the models)
 	 * @param string $prefix (the configured table prefix)
 	 */
-	public function __construct($baseModel = '', $path = '', $namespace = '', $prefix = '',$force=false)
+	public function __construct($baseModel = '', $path = '', $namespace = '', $prefix = '',$force=false,$singleTable = null)
 	{
 
 		if (!defined('TAB')) {
@@ -73,6 +75,7 @@ class ModelGenerator
 		$this->namespace = $namespace;
 		$this->prefix = $prefix;
 		$this->force = $force;
+		$this->singleTable = $singleTable;
 	}
 
 	/**
@@ -111,6 +114,8 @@ class ModelGenerator
 				$this->prefix
 			);
 
+			if(isset($this->singleTable) && $table !== $this->singleTable)
+				continue;
 
 			$path = $this->path.DIRECTORY_SEPARATOR.'Base';
 			$result = $this->writeFile($table.'_base', $model->getBaseModel(),$path, true);
